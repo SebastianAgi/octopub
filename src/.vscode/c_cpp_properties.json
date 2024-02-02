@@ -1,0 +1,25 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/sebastian/catkin_ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/sebastian/catkin_ws/src/FAST_LIO/include/**",
+        "/home/sebastian/catkin_ws/src/LIO-mapping/include/**",
+        "/home/sebastian/catkin_ws/src/octopub/include/**",
+        "/home/sebastian/catkin_ws/src/ouster-ros/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
