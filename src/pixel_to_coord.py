@@ -156,6 +156,20 @@ class PixelToCoord:
         one_point.point.z = 0.0 # single_point[2]
         self.pub_single.publish(one_point)
 
+    def send_nav_goal(self, point):
+        goal = PoseStamped()
+        goal.header.stamp = rospy.Time.now()
+        goal.header.frame_id = "camera_init"
+        goal.pose.position.x = point[0]
+        goal.pose.position.y = point[1]
+        goal.pose.position.z = point[2]
+        goal.pose.orientation.x = 0.0
+        goal.pose.orientation.y = 0.0
+        goal.pose.orientation.z = 0.0
+        goal.pose.orientation.w = 1.0
+
+        return goal
+
     def main(self, mask, transformation):
         
         points_3d = self.extract_3d_points(self.depth_image, self.intrinsics)
@@ -196,3 +210,5 @@ if __name__ == '__main__':
         ptc.publish_pointcloud2(accumulated_points)
         for i in range(len(points)):
             ptc.publish_single_point(points[i])
+        print('Published point cloud')
+        ptc.send_nav_goal(points[0])
