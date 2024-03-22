@@ -203,7 +203,13 @@ if __name__ == '__main__':
         while gs.realsense_image is None:
             pass
         transformation = ptc.odometry_to_transformation_matrix()
-        masks = gs.main(str(input_str))
+
+        try:
+            masks = gs.main(str(input_str))
+
+        except:
+            print(input_str,' not detected')
+            continue
 
         all_points, point_3d, points = ptc.main(masks, transformation)
         accumulated_points = np.vstack((accumulated_points, all_points))
