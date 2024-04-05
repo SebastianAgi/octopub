@@ -267,7 +267,7 @@ int main(int argc, char** argv) {
     // ros::spin();
     while (ros::ok()) {
       // Add the point clouds together
-      // *cloud += *temp;
+      *cloud += *temp;
 
       //set cloud to temp as temp updates
        *cloud = *temp;
