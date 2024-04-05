@@ -1,0 +1,4 @@
+name: grounding_sam
+channels:
+  - defaults
+prefix: /home/sebastian/miniconda3/envs/grounding_sam

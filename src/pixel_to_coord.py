@@ -30,6 +30,7 @@ class PixelToCoord:
         self.sub = rospy.Subscriber('/Odometry', Odometry, self.odom_callback)
         self.pub = rospy.Publisher('object_detected', PointCloud2, queue_size=10)
         self.pub_single = rospy.Publisher('single_point', PointStamped, queue_size=10)
+        self.pub_pose = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
         self.pixel_mask = None
         self.intrinsics = {
         'width': 1280,  # Width of the image
@@ -76,7 +77,7 @@ class PixelToCoord:
         # Create a transformation matrix from the position and orientation
         transformation = transformations.quaternion_matrix([orientation.w, orientation.x, orientation.y, orientation.z])
         transformation[:3, 3] = [position.x, position.y, position.z]
-        print('Transformation matrix:', transformation)
+        # print('Transformation matrix:', transformation)
         return transformation
         
     # Function to convert depth and pixel location to 3D point
@@ -91,13 +92,10 @@ class PixelToCoord:
     def extract_3d_points(self, depth_image, intrinsics):
         # Read the pixel mask
         pixel_mask = cv2.imread('/home/sebastian/catkin_ws/src/octopub/src/outputs/mask.png', cv2.IMREAD_UNCHANGED)
-        print('Number of nonzeros:', np.count_nonzero(pixel_mask))
-        print(pixel_mask.shape)
 
         # Find unique mask values (excluding 0 if it's the background)
         unique_masks = np.unique(pixel_mask)
         unique_masks = unique_masks[unique_masks != 0]  # Remove background if 0 is considered background
-        print('Unique masks:', unique_masks)
         # Prepare a list to hold points for each mask
         points_3d_per_mask = []
 
@@ -156,19 +154,64 @@ class PixelToCoord:
         one_point.point.z = 0.0 # single_point[2]
         self.pub_single.publish(one_point)
 
+<<<<<<< HEAD
     def send_nav_goal(self, point):
+=======
+    def send_nav_goal(self, point, quat):
+>>>>>>> 1d8d7adf2c886dd6baad3c411d31192336a736de
         goal = PoseStamped()
         goal.header.stamp = rospy.Time.now()
         goal.header.frame_id = "camera_init"
         goal.pose.position.x = point[0]
         goal.pose.position.y = point[1]
         goal.pose.position.z = point[2]
+<<<<<<< HEAD
         goal.pose.orientation.x = 0.0
         goal.pose.orientation.y = 0.0
         goal.pose.orientation.z = 0.0
         goal.pose.orientation.w = 1.0
 
         return goal
+=======
+        goal.pose.orientation.x = quat[0]
+        goal.pose.orientation.y = quat[1]
+        goal.pose.orientation.z = quat[2]   
+        goal.pose.orientation.w = quat[3]
+        self.pub_pose.publish(goal)
+    
+
+    def turn_90_degrees_z(self):
+        # Your current quaternion [w, x, y, z]
+        # current_quat = [self.odom_data.pose.pose.orientation.w, 
+        #                 self.odom_data.pose.pose.orientation.x, 
+        #                 self.odom_data.pose.pose.orientation.y, 
+        #                 self.odom_data.pose.pose.orientation.z]
+
+        current_quat = [0.0, 0.0, 0.0, 1.0]
+
+        # Create a rotation object from the current quaternion
+        current_rotation = R.from_quat(current_quat)
+
+        # Define a rotation of 90 degrees around the z-axis
+        rotation_90_degrees_z = R.from_euler('z', 90, degrees=True)
+
+        # Apply this rotation to the current rotation
+        new_rotation = current_rotation * rotation_90_degrees_z
+
+        # Convert the new rotation back to a quaternion [w, x, y, z]
+        new_quat = new_rotation.as_quat()  # Returns [x, y, z, w] for SciPy
+
+        new_quat = [new_quat[3], new_quat[0], new_quat[1], new_quat[2]]
+
+        current_xyz = [self.odom_data.pose.pose.position.x,
+                       self.odom_data.pose.pose.position.y, 
+                       self.odom_data.pose.pose.position.z]
+
+        # Return the new orientation as a quaternion
+        return new_quat, current_xyz
+
+
+>>>>>>> 1d8d7adf2c886dd6baad3c411d31192336a736de
 
     def main(self, mask, transformation):
         
@@ -191,19 +234,37 @@ if __name__ == '__main__':
     ptc = PixelToCoord()
     gs = GroundingSam()
 
+    count = 0
+
     #initialize an empty array for accumulating points
     accumulated_points = np.empty((0,3), dtype=float)  # Assuming points are 3D, adjust the shape as necessary
 
     while not rospy.is_shutdown():
 
         #conditional for specifying an objec to localize (only activate when enter is pressed)
-        input_str = input("Enter the object to localize: ")
-        if input_str == '':
-            break
+        if count == 0:
+            input_str = input("Enter the object to localize: ")
+            if input_str == '':
+                break
         while gs.realsense_image is None:
             pass
         transformation = ptc.odometry_to_transformation_matrix()
-        masks = gs.main(str(input_str))
+
+        try:
+            masks = gs.main(str(input_str))
+
+        except:
+            print(input_str,'not detected')
+            if count == 4:
+                count = 0
+                print('Object not found')
+                continue
+            print('Will look around for the object')
+            quat, xyz = ptc.turn_90_degrees_z()
+            print(quat, xyz)
+            ptc.send_nav_goal(xyz, quat)
+            count += 1
+            continue
 
         all_points, point_3d, points = ptc.main(masks, transformation)
         accumulated_points = np.vstack((accumulated_points, all_points))
@@ -211,4 +272,8 @@ if __name__ == '__main__':
         for i in range(len(points)):
             ptc.publish_single_point(points[i])
         print('Published point cloud')
+<<<<<<< HEAD
         ptc.send_nav_goal(points[0])
+=======
+        ptc.send_nav_goal(points[0], [0.0, 0.0, 0.0, 1.0])
+>>>>>>> 1d8d7adf2c886dd6baad3c411d31192336a736de
