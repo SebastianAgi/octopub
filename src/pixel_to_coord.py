@@ -154,25 +154,13 @@ class PixelToCoord:
         one_point.point.z = 0.0 # single_point[2]
         self.pub_single.publish(one_point)
 
-<<<<<<< HEAD
-    def send_nav_goal(self, point):
-=======
     def send_nav_goal(self, point, quat):
->>>>>>> 1d8d7adf2c886dd6baad3c411d31192336a736de
         goal = PoseStamped()
         goal.header.stamp = rospy.Time.now()
         goal.header.frame_id = "camera_init"
         goal.pose.position.x = point[0]
         goal.pose.position.y = point[1]
         goal.pose.position.z = point[2]
-<<<<<<< HEAD
-        goal.pose.orientation.x = 0.0
-        goal.pose.orientation.y = 0.0
-        goal.pose.orientation.z = 0.0
-        goal.pose.orientation.w = 1.0
-
-        return goal
-=======
         goal.pose.orientation.x = quat[0]
         goal.pose.orientation.y = quat[1]
         goal.pose.orientation.z = quat[2]   
@@ -211,7 +199,6 @@ class PixelToCoord:
         return new_quat, current_xyz
 
 
->>>>>>> 1d8d7adf2c886dd6baad3c411d31192336a736de
 
     def main(self, mask, transformation):
         
@@ -272,8 +259,4 @@ if __name__ == '__main__':
         for i in range(len(points)):
             ptc.publish_single_point(points[i])
         print('Published point cloud')
-<<<<<<< HEAD
-        ptc.send_nav_goal(points[0])
-=======
         ptc.send_nav_goal(points[0], [0.0, 0.0, 0.0, 1.0])
->>>>>>> 1d8d7adf2c886dd6baad3c411d31192336a736de
