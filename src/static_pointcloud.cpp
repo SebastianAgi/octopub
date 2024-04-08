@@ -157,29 +157,32 @@ void planeFitting(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float radius_thresh
             // Calculate the dot product between the normal vector and the z-axis
             float angle = normal.dot(Eigen::Vector3f::UnitZ());
 
-            // pcl::PointXYZINormal point;
-            // point.x = cloud->points[i].x;
-            // point.y = cloud->points[i].y;
-            // point.z = cloud->points[i].z;
-            // point.intensity = abs(angle);
-            // point.normal_x = abs(normal[0]);
-            // point.normal_y = abs(normal[1]);
-            // point.normal_z = abs(normal[2]);
-            // intensity_cloud->points.push_back(point);
+            pcl::PointXYZINormal point;
+            point.x = cloud->points[i].x;
+            point.y = cloud->points[i].y;
+            point.z = cloud->points[i].z;
+            point.intensity = abs(angle);
+            point.normal_x = abs(normal[0]);
+            point.normal_y = abs(normal[1]);
+            point.normal_z = abs(normal[2]);
+            intensity_cloud->points.push_back(point);
 
-            //push point of abs(angle) > 0.5 to occupancy grid
-            if (abs(angle) < 0.5 && cloud->points[i].x < abs(5.0) && cloud->points[i].y < abs(5.0))
-            {
-              pcl::PointXYZ point;
-              point.x = cloud->points[i].x;
-              point.y = cloud->points[i].y;
-              point.z = 0.0;
-              occupancy_grid->points.push_back(point);
-
-              if (abs(point.y) > 5.0)
-              {
-                std::cout << "point not in range" << std::endl;
-              }
+            // Only proceed if the plane fitting conditions are met
+            if (abs(angle) < 0.975 && cloud->points[i].x < abs(5.0) && cloud->points[i].y < abs(5.0)) {
+                // Perform a second radius search to ensure the point has the required number of neighbors
+                std::vector<int> secondaryPointIndices;
+                std::vector<float> secondaryPointDistances;
+                int required_neighbors = 7; // Set the required number of neighbors
+                float neighbor_search_radius = 0.2; // Set the search radius for neighbors
+                
+                if (kdtree.radiusSearch(searchPoint, neighbor_search_radius, secondaryPointIndices, secondaryPointDistances) >= required_neighbors) {
+                    // If the point has enough neighbors, then add it to the occupancy grid
+                    pcl::PointXYZ point;
+                    point.x = cloud->points[i].x;
+                    point.y = cloud->points[i].y;
+                    point.z = 0.0; // Z value set to 0 as it's a 2D occupancy grid
+                    occupancy_grid->points.push_back(point);
+                }
             }
         }
     }
@@ -268,6 +271,7 @@ int main(int argc, char** argv) {
     ros::Subscriber pc_sub3 = nh.subscribe("/object_point", 1, object_location_callback);
     ros::Publisher pc_pub = nh.advertise<sensor_msgs::PointCloud2>("/occupancy_grid", 1);
     ros::Publisher pc_pub2 = nh.advertise<sensor_msgs::PointCloud2>("/cloud_aligned", 1);
+    ros::Publisher pc_pub3 = nh.advertise<sensor_msgs::PointCloud2>("/cloud_contour", 1);
     ros::Publisher map_pub = nh.advertise<nav_msgs::OccupancyGrid>("/occupancy_map", 1);
     //publisher for the octomap
     ros::Publisher octomap_pub = nh.advertise<octomap_msgs::Octomap>("/octomap_flat", 1);
@@ -340,10 +344,10 @@ int main(int argc, char** argv) {
       // std::cout << "intensity_cloud size: " << intensity_cloud->size() << std::endl;
 
       // Publish the traverasbility point cloud
-      // sensor_msgs::PointCloud2 output1;
-      // pcl::toROSMsg(*intensity_cloud, output1);
-      // output1.header.frame_id = "camera_init";
-      // pc_pub.publish(output1);
+      sensor_msgs::PointCloud2 output1;
+      pcl::toROSMsg(*intensity_cloud, output1);
+      output1.header.frame_id = "camera_init";
+      pc_pub3.publish(output1);
 
       // Publish the occupancy grid
       sensor_msgs::PointCloud2 output2;
