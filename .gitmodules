@@ -1,0 +1,3 @@
+[submodule "src/recognize_anything"]
+	path = src/recognize_anything
+	url = https://github.com/RPL-CS-UCL/recognize-anything.git
