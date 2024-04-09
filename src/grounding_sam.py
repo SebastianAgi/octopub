@@ -57,6 +57,10 @@ class GroundingSam:
         self.sub = rospy.Subscriber('/camera/color/image_raw', Image, self.image_callback)
         self.bridge = cv_bridge.CvBridge()
     
+        #load model
+        self.model = self.load_model(self.config_file, self.grounded_checkpoint, device=self.device)
+
+
     def image_callback(self, data):
         self.realsense_image = self.bridge.imgmsg_to_cv2(data, desired_encoding="passthrough")
 
@@ -166,12 +170,17 @@ class GroundingSam:
 
         # load image
         image_pil, image = self.load_image()
+
+        start_0 = time.time()
         # load model
-        model = self.load_model(self.config_file, self.grounded_checkpoint, device=self.device)
+        model = self.model
+
+        end_0 = time.time()
+        print(f"load model time taken: {end_0 - start_0}")
 
         # visualize raw image
         # name the image to output_dir as raw_image + current time
-        raw_image_path = os.path.join(self.output_dir, "raw_image_" + str(time.time()) + ".jpg")
+        # raw_image_path = os.path.join(self.output_dir, "raw_image_" + str(time.time()) + ".jpg")
 
         #start time
         start = time.time()
