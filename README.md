@@ -2,6 +2,14 @@ This is a repo to test the navigation stack implementation with the ouster lidar
 
 Installation instruction:
 
+Create conda env:
+```bash
+conda create -n grounding_dino
+conda activate grounding_dino
+pip install rewuirements.txt
+
+```
+
 download the three weight files here:
 ```bash
 wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
