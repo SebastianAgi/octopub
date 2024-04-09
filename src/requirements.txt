@@ -36,7 +36,7 @@ chardet==3.0.4
 charset-normalizer==3.3.2
 chumpy==0.70
 click==8.1.7
-clip==1.0
+clip
 colorama==0.4.3
 coloredlogs==15.0.1
 comm==0.2.1
@@ -261,7 +261,6 @@ requests-unixsocket==0.2.0
 resource-retriever==1.12.7
 rich==13.7.0
 roman==2.0.0
-ros-numpy==0.0.5
 rosbag==1.16.0
 rosboost-cfg==1.15.8
 rosclean==1.15.8

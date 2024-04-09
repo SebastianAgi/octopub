@@ -6,7 +6,6 @@ import numpy as np
  
 class GoalAdjuster:
     def __init__(self):
-        # rospy.init_node('goal_adjuster')
         self.map_sub = rospy.Subscriber("/projected_map", OccupancyGrid, self.map_callback)
         self.goal_pub = rospy.Publisher("/move_base_simple/goal", PoseStamped, queue_size=1)
         self.map_data = None
@@ -53,10 +52,3 @@ class GoalAdjuster:
         adjusted_goal.pose.position.y = wy
         adjusted_goal.pose.orientation = original_goal.pose.orientation
         return adjusted_goal
- 
-if __name__ == '__main__':
-    try:
-        GoalAdjuster()
-        rospy.spin()
-    except rospy.ROSInterruptException:
-        pass
