@@ -1,0 +1,3 @@
+src/__pycache__/
+src/groundingdino_swint_ogc.pth
+src/sam_vit_h_4b8939.pth
