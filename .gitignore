@@ -1,3 +1,10 @@
 src/__pycache__/
 src/groundingdino_swint_ogc.pth
 src/sam_vit_h_4b8939.pth
+src/outputs/
+src/GroundingDINO/groundingdino/__pycache__/
+src/GroundingDINO/groundingdino/datasets/__pycache__/
+src/GroundingDINO/groundingdino/models/GroundingDINO/__pycache__/
+src/GroundingDINO/groundingdino/models/GroundingDINO/backbone/__pycache__/
+src/GroundingDINO/groundingdino/models/__pycache__/
+src/GroundingDINO/groundingdino/util/__pycache__/
