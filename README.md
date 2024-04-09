@@ -10,5 +10,5 @@ wget https://huggingface.co/spaces/xinyu1205/Tag2Text/resolve/main/ram_swin_larg
 ```
 Install ros-numpy:
 ```bash
-sudo apt-get install r-so-noetic-ros-numpy
+sudo apt-get install ros-noetic-ros-numpy
 ```
