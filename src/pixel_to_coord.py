@@ -6,6 +6,7 @@ import cv2
 import rospy
 from sensor_msgs.msg import PointCloud2
 from sensor_msgs.msg import Image
+from sensor_msgs.msg import CompressedImage
 import ros_numpy
 import cv_bridge
 from sensor_msgs.msg import PointField
@@ -15,10 +16,14 @@ from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry
 import matplotlib.pyplot as plt
 from grounding_sam import GroundingSam
+import std_msgs
 import threading
 import torch
 import transformations
 from scipy.spatial.transform import Rotation as R
+
+import std_msgs.msg
+from utils import GoalAdjuster
 
 class PixelToCoord:
 
@@ -26,12 +31,17 @@ class PixelToCoord:
         #initialize ros node
         rospy.init_node('pixel_to_coord', anonymous=True)
         self.depth_image = None
+        # self.sub = rospy.Subscriber('/camera/aligned_depth_to_color/image_raw/compressed', CompressedImage, self.depth_callback)
         self.sub = rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self.depth_callback)
-        self.sub = rospy.Subscriber('/Odometry', Odometry, self.odom_callback)
+        self.sub1 = rospy.Subscriber('/Odometry', Odometry, self.odom_callback)
+        self.sub2 = rospy.Subscriber('/llm_object', std_msgs.msg.String, self.llm_callback)
         self.pub = rospy.Publisher('object_detected', PointCloud2, queue_size=10)
         self.pub_single = rospy.Publisher('single_point', PointStamped, queue_size=10)
-        self.pub_pose = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
+        self.pub_pose = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=10)
+        self.goal_sub = rospy.Subscriber("/adjusted_goal", PoseStamped, self.adjust_goal_callback)
         self.pixel_mask = None
+        self.current_object = None
+        self.current_goal = None
         self.intrinsics = {
         'width': 1280,  # Width of the image
         'height': 720,  # Height of the image
@@ -62,6 +72,9 @@ class PixelToCoord:
                                         [  0,   0,   0, 1.0]])
         self.odom_data = Odometry()
 
+        self.goal_adjuster = GoalAdjuster()
+
+
     #subscriber to the depth image
     def depth_callback(self, data):
         self.depth_image = ros_numpy.numpify(data)        
@@ -69,6 +82,12 @@ class PixelToCoord:
     #subscriber to the odometry
     def odom_callback(self, data):
         self.odom_data = data
+
+    def llm_callback(self, data):
+        self.current_object = data.data
+
+    def adjust_goal_callback(self, data):
+        self.current_goal = data
 
     def odometry_to_transformation_matrix(self):
         # Extract the position and orientation from the odometry message
@@ -155,6 +174,8 @@ class PixelToCoord:
         self.pub_single.publish(one_point)
 
     def send_nav_goal(self, point, quat):
+        print(point)
+        print(quat)
         goal = PoseStamped()
         goal.header.stamp = rospy.Time.now()
         goal.header.frame_id = "camera_init"
@@ -165,17 +186,18 @@ class PixelToCoord:
         goal.pose.orientation.y = quat[1]
         goal.pose.orientation.z = quat[2]   
         goal.pose.orientation.w = quat[3]
-        self.pub_pose.publish(goal)
+        new_goal = self.goal_adjuster.adjust_goal(goal)
+        self.pub_pose.publish(new_goal)
     
 
     def turn_90_degrees_z(self):
         # Your current quaternion [w, x, y, z]
-        # current_quat = [self.odom_data.pose.pose.orientation.w, 
-        #                 self.odom_data.pose.pose.orientation.x, 
-        #                 self.odom_data.pose.pose.orientation.y, 
-        #                 self.odom_data.pose.pose.orientation.z]
+        current_quat = [self.odom_data.pose.pose.orientation.w, 
+                        self.odom_data.pose.pose.orientation.x, 
+                        self.odom_data.pose.pose.orientation.y, 
+                        self.odom_data.pose.pose.orientation.z]
 
-        current_quat = [0.0, 0.0, 0.0, 1.0]
+        # current_quat = [0.0, 0.0, 0.0, 1.0]
 
         # Create a rotation object from the current quaternion
         current_rotation = R.from_quat(current_quat)
@@ -225,14 +247,19 @@ if __name__ == '__main__':
 
     #initialize an empty array for accumulating points
     accumulated_points = np.empty((0,3), dtype=float)  # Assuming points are 3D, adjust the shape as necessary
-
+    print("waiting for object")
     while not rospy.is_shutdown():
 
         #conditional for specifying an objec to localize (only activate when enter is pressed)
         if count == 0:
-            input_str = input("Enter the object to localize: ")
+            if ptc.current_object != None:
+                input_str = ptc.current_object
+            else: 
+                continue
+            # input_str = input("Enter the object to localize: ")
             if input_str == '':
                 break
+            print("the object to go to: ", input_str)
         while gs.realsense_image is None:
             pass
         transformation = ptc.odometry_to_transformation_matrix()
@@ -259,4 +286,7 @@ if __name__ == '__main__':
         for i in range(len(points)):
             ptc.publish_single_point(points[i])
         print('Published point cloud')
+        ptc.publish_single_point(points[0])
         ptc.send_nav_goal(points[0], [0.0, 0.0, 0.0, 1.0])
+        
+        ptc.current_object = None
