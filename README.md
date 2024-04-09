@@ -1,4 +1,4 @@
-This is a repo to test the navigation stack implementation with the ouster lidar for controlling the robot to where I want it.
+This is a repo for unguided navigation using LLM and segmentation models on a robot.
 
 Installation instruction:
 
