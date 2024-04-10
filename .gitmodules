@@ -1,6 +1,3 @@
-[submodule "src/recognize_anything"]
-	path = src/recognize_anything
-	url = https://github.com/RPL-CS-UCL/recognize-anything.git
 [submodule "recognize_anything"]
 	path = recognize_anything
 	url = https://github.com/RPL-CS-UCL/recognize-anything.git
