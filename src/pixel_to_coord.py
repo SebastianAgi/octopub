@@ -15,7 +15,7 @@ from geometry_msgs.msg import PointStamped
 from geometry_msgs.msg import PoseStamped
 from nav_msgs.msg import Odometry
 import matplotlib.pyplot as plt
-from grounding_sam import GroundingSam
+# from grounding_sam import GroundingSam
 import std_msgs
 import threading
 import torch
@@ -23,7 +23,7 @@ import transformations
 from scipy.spatial.transform import Rotation as R
 
 import std_msgs.msg
-from utils import GoalAdjuster
+from src.utils import GoalAdjuster
 
 class PixelToCoord:
 

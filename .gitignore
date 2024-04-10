@@ -11,3 +11,4 @@ src/GroundingDINO/groundingdino/util/__pycache__/
 src/ram_swin_large_14m.pth
 src/test_images/
 src/src
+src/pretrained/

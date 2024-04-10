@@ -38,7 +38,7 @@ class GroundingSam:
         self.realsense_image = None
         # cfg
         self.config_file = "GroundingDINO/groundingdino/config/GroundingDINO_SwinT_OGC.py"  # change the path of the model config file
-        self.grounded_checkpoint = "groundingdino_swint_ogc.pth"  # change the path of the model
+        self.grounded_checkpoint = "pretrained/groundingdino_swint_ogc.pth"  # change the path of the model
         self.sam_version = "vit_h"
         self.sam_checkpoint = "sam_vit_h_4b8939.pth"
         self.sam_hq_checkpoint = None
