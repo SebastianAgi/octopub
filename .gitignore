@@ -11,3 +11,5 @@ src/src
 pretrained/
 outputs/
 old code/
+__pycache__/
+.vscode/
