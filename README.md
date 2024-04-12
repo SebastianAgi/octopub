@@ -6,7 +6,8 @@ Create conda env:
 ```bash
 conda create -n xplor
 conda activate xplor
-pip install rewuirements.txt
+conda install pip
+pip install requirements.txt
 
 ```
 
