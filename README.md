@@ -4,8 +4,8 @@ Installation instruction:
 
 Create conda env:
 ```bash
-conda create -n grounding_dino
-conda activate grounding_dino
+conda create -n xplor
+conda activate xplor
 pip install rewuirements.txt
 
 ```
