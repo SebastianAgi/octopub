@@ -1,0 +1,7 @@
+<launch>
+
+<node pkg="octopub" type="test.py" name="go_to_node" output="screen" />
+
+
+
+</launch>

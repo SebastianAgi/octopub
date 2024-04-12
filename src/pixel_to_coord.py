@@ -29,7 +29,9 @@ class PixelToCoord:
 
     def __init__(self):
         #initialize ros node
+        print("nip")
         rospy.init_node('pixel_to_coord', anonymous=True)
+        
         self.depth_image = None
         # self.sub = rospy.Subscriber('/camera/aligned_depth_to_color/image_raw/compressed', CompressedImage, self.depth_callback)
         self.sub = rospy.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, self.depth_callback)

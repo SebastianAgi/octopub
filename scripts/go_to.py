@@ -1,8 +1,17 @@
+#!/usr/bin/env python3
+
 import numpy as np
 import rospy
 
+import os
 import sys
-sys.path.append('/home/sebastian/catkin_ws/src/octopub')
+
+# Get the directory where the script is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# If you need to add the parent directory to sys.path
+parent_dir = os.path.dirname(script_dir)
+sys.path.append(parent_dir)
 
 from src.grounding_sam import GroundingSam
 from src.pixel_to_coord import PixelToCoord

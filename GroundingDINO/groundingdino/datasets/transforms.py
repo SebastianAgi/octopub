@@ -5,6 +5,9 @@ Transforms and data augmentation for both image + bbox.
 import os
 import random
 
+import sys
+sys.path.append('/home/sebastian/catkin_ws/src/octopub/GroundingDINO/groundingdino')
+
 import PIL
 import torch
 import torchvision.transforms as T
